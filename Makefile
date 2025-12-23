@@ -58,7 +58,7 @@ build: ## Build the image form Dockerfile
 
 push: ## Push the image to a registry
 ifdef DOCKER_USERNAME
-	@echo "$(DOCKER_PASSWORD)" | docker login -u "$(DOCKER_USERNAME)" --password-stdin
+	@echo docker login -u "$(DOCKER_USERNAME)" -p $(DOCKER_PASSWORD)
 endif
 	docker push $(NS)/$(IMAGE_NAME):$(CURRENT_VERSION_MICRO)
 	docker push $(NS)/$(IMAGE_NAME):$(CURRENT_VERSION_MINOR)
