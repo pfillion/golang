@@ -1,0 +1,35 @@
+when:
+  - event: [push, manual]
+
+workspace:
+  base: /main
+  path: src
+
+steps:
+  - name: build
+    image: pfillion/dind
+    commands:
+      - make build
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  - name: test
+    image: pfillion/dind
+    commands:
+      - make test
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  - name: push
+    image: pfillion/dind
+    environment:
+      DOCKER_USERNAME:
+        from_secret: docker_username
+      DOCKER_PASSWORD:
+        from_secret: docker_password
+    commands:
+      - make push
+    volumes: 
+      - /var/run:/var/run      
+    when:
+      - evaluate: 'MODE_LOCAL != "true"'

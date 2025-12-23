@@ -3,6 +3,10 @@ SHELL = /bin/sh
 .PHONY: help
 .DEFAULT_GOAL := help
 
+ifeq ($(MODE_LOCAL),true)
+	GIT_CONFIG_GLOBAL := $(shell git config --global --add safe.directory /go/src/github.com/pfillion/helloworld > /dev/null)
+endif
+
 # Version
 VERSION            := 1.24.4
 VERSION_PARTS      := $(subst ., ,$(VERSION))
@@ -23,8 +27,8 @@ AUTHOR             := $(firstword $(subst @, ,$(shell git show --format="%aE" $(
 # Docker parameters
 ROOT_FOLDER=$(shell pwd)
 NS ?= pfillion
-IMAGE_NAME ?= drone-golang
-CONTAINER_NAME ?= drone-golang
+IMAGE_NAME ?= golang
+CONTAINER_NAME ?= golang
 CONTAINER_INSTANCE ?= default
 
 help: ## Show the Makefile help.
@@ -54,7 +58,7 @@ build: ## Build the image form Dockerfile
 
 push: ## Push the image to a registry
 ifdef DOCKER_USERNAME
-	echo "$(DOCKER_PASSWORD)" | docker login -u "$(DOCKER_USERNAME)" --password-stdin
+	@echo "$(DOCKER_PASSWORD)" | docker login -u "$(DOCKER_USERNAME)" --password-stdin
 endif
 	docker push $(NS)/$(IMAGE_NAME):$(CURRENT_VERSION_MICRO)
 	docker push $(NS)/$(IMAGE_NAME):$(CURRENT_VERSION_MINOR)
@@ -66,5 +70,8 @@ shell: ## Run shell command in the container
 
 test: ## Run all tests
 	container-structure-test test --image $(NS)/$(IMAGE_NAME):$(CURRENT_VERSION_MICRO) --config tests/config.yaml
+
+test-ci: ## Run CI pipeline locally
+	woodpecker-cli exec --local --repo-trusted-volumes=true --env=MODE_LOCAL=true			
 	
 release: build push ## Build and push the image to a registry
