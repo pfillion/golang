@@ -8,9 +8,9 @@ ifeq ($(MODE_LOCAL),true)
 endif
 
 # Version
-VERSION            := 1.24.4
+VERSION            := 1.25.5
 VERSION_PARTS      := $(subst ., ,$(VERSION))
-VERSION_ALPINE     := 3.22
+VERSION_ALPINE     := 3.23
 
 MAJOR              := $(word 1,$(VERSION_PARTS))
 MINOR              := $(word 2,$(VERSION_PARTS))
